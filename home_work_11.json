@@ -1,0 +1,81 @@
+
+// 1. В базе данных Redis подберите коллекцию для подсчета посещений с определенных IP-адресов.
+
+// создаю коллекцию в которой хранятся только уникальные значения
+
+127.0.0.1:6379> SADD ip '127.0.0.1' '127.0.0.2' '127.0.0.3' '127.0.0.4' '127.0.1.5' '127.0.0.1'
+(integer) 5
+
+// список уникальных ip
+
+127.0.0.1:6379> SMEMBERS ip
+1) "127.0.0.1"
+2) "127.0.0.4"
+3) "127.0.0.2"
+4) "127.0.0.3"
+5) "127.0.1.5"
+
+// количестов адресов в коллекции
+127.0.0.1:6379> SCARD ip
+(integer) 5
+
+
+// 2. При помощи базы данных Redis решите задачу поиска имени пользователя по электронному адресу
+// и наоброт, поиск электронного адреса пользователя по его имени.
+
+// Так как Redis не позволяет использовать в запросах значения объектов,(поиск можно производить только по ключу) то
+// нужно выбирать что будет ключем имя или email.
+
+// создаем пары ключ значения
+127.0.0.1:6379> SET ilya@gmail.com Ilya
+OK
+127.0.0.1:6379> SET Ilya ilya@gmail.ru
+OK
+
+// используем ключи
+
+127.0.0.1:6379> GET Ilya
+"ilya@gmail.ru"
+127.0.0.1:6379> GET ilya@gmail.com
+"Ilya"
+
+// 3. Организуйте хранение категорий и товарных позиций учебной базы данных shop в СУБД MongoDB.
+// Так как в плане выбора структуры БД mongodb дает широкий выбор,
+// то оптимальных вариантов организации структуры БД может довольно много,
+// все зависит от предметной области
+
+// создание и заполнение таблицы products
+use products
+db.products.insert({"name": "Intel Core i3-8100", "description": "Процессор для настольных ПК", "price": "8000.00", "catalog_id": "Процессоры", "created_at": new Date(), "updated_at": new Date()}) 
+
+db.products.insertMany([
+	{"name": "AMD FX-8320", "description": "Процессор для настольных ПК", "price": "4000.00", "catalog_id": "Процессоры", "created_at": new Date(), "updated_at": new Date()},
+	{"name": "AMD FX-8320E", "description": "Процессор для настольных ПК", "price": "4500.00", "catalog_id": "Процессоры", "created_at": new Date(), "updated_at": new Date()}])
+
+db.products.find()
+
+{ "_id" : ObjectId("5f1c28c265019301a5d684eb"), "name" : "Intel Core i3-8100", "description" : "Процессор для настольных ПК", "price" : "8000.00", "catalog_id" : "Процессоры", "created_at" : ISODate("2020-07-25T12:42:42.584Z"), "updated_at" : ISODate("2020-07-25T12:42:42.584Z") }
+{ "_id" : ObjectId("5f1c299f65019301a5d684ec"), "name" : "AMD FX-8320", "description" : "Процессор для настольных ПК", "price" : "4000.00", "catalog_id" : "Процессоры", "created_at" : ISODate("2020-07-25T12:46:23.383Z"), "updated_at" : ISODate("2020-07-25T12:46:23.383Z") }
+{ "_id" : ObjectId("5f1c299f65019301a5d684ed"), "name" : "AMD FX-8320E", "description" : "Процессор для настольных ПК", "price" : "4500.00", "catalog_id" : "Процессоры", "created_at" : ISODate("2020-07-25T12:46:23.383Z"), "updated_at" : ISODate("2020-07-25T12:46:23.383Z") }
+
+db.products.find({name: "AMD FX-8320"})
+
+
+// создание и заполнение таблицы catalogs
+> use catalogs
+switched to db catalogs
+
+> db.catalogs.insertMany([{"name": "Процессоры"}, {"name": "Мат.платы"}, {"name": "Видеокарты"}])
+{
+	"acknowledged" : true,
+	"insertedIds" : [
+		ObjectId("5f1c2ad565019301a5d684f5"),
+		ObjectId("5f1c2ad565019301a5d684f6"),
+		ObjectId("5f1c2ad565019301a5d684f7")
+	]
+}
+> db.catalogs.find()
+{ "_id" : ObjectId("5f1c2ad565019301a5d684f5"), "name" : "Процессоры" }
+{ "_id" : ObjectId("5f1c2ad565019301a5d684f6"), "name" : "Мат.платы" }
+{ "_id" : ObjectId("5f1c2ad565019301a5d684f7"), "name" : "Видеокарты" }
+> 
